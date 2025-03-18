@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>古诗文拼图游戏</title>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .container {
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    
+    .tab-button {
+      flex: 1;
+      padding: 10px;
+      background-color: #e0e0e0;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    .tab-button.active {
+      background-color: #4a90e2;
+      color: white;
+    }
+    
+    .tab-button:first-child {
+      border-radius: 5px 0 0 5px;
+    }
+    
+    .tab-button:last-child {
+      border-radius: 0 5px 5px 0;
+    }
+    
+    .tab-content {
+      display: none;
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .poem-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .poem-item {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .poem-item:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .poem-item.selected {
+      background-color: #e3f2fd;
+      border-color: #2196f3;
+    }
+    
+    .custom-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .custom-form input,
+    .custom-form textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    
+    .custom-form textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .custom-form button {
+      padding: 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .custom-form button:hover {
+      background-color: #45a049;
+    }
+    
+    .difficulty-buttons {
+      display: flex;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    
+    .difficulty-button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    
+    .difficulty-button.easy {
+      background-color: #e0f2f1;
+    }
+    
+    .difficulty-button.normal {
+      background-color: #fff9c4;
+    }
+    
+    .difficulty-button.hard {
+      background-color: #ffebee;
+    }
+    
+    .difficulty-button.active.easy {
+      background-color: #4caf50;
+      color: white;
+    }
+    
+    .difficulty-button.active.normal {
+      background-color: #ff9800;
+      color: white;
+    }
+    
+    .difficulty-button.active.hard {
+      background-color: #f44336;
+      color: white;
+    }
+    
+    .poem-info {
+      background-color: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .poem-info h2 {
+      margin-top: 0;
+      margin-bottom: 5px;
+    }
+    
+    .poem-info p {
+      color: #666;
+      margin-top: 0;
+    }
+    
+    .hint-box {
+      background-color: #fff8e1;
+      border: 1px solid #ffe082;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    
+    .hint-box p:first-child {
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 5px;
+    }
+    
+    .hint-box p:last-child {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    
+    .answer-area,
+    .characters-area {
+      background-color: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    
+    .answer-area h3,
+    .characters-area h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    
+    .answer-container {
+      min-height: 60px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    
+    .characters-container {
+      background-color: #f5f5f5;
+      border-radius: 5px;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    
+    .character {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 16px;
+    }
+    
+    .character:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .selected-character {
+      background-color: #e3f2fd;
+      border-color: #2196f3;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    
+    .action-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    .reshuffle-button {
+      background-color: #ff9800;
+      color: white;
+    }
+    
+    .hint-button {
+      background-color: #2196f3;
+      color: white;
+    }
+    
+    .reshuffle-button:hover {
+      background-color: #f57c00;
+    }
+    
+    .hint-button:hover {
+      background-color: #1976d2;
+    }
+    
+    .feedback {
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    
+    .correct {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    .incorrect {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .error-message {
+      color: #c62828;
+      background-color: #ffebee;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>古诗文字符拼图游戏</h1>
+  
+  <div class="container">
+    <!-- 模式选择 -->
+    <div class="tab-buttons">
+      <button class="tab-button active" onclick="switchTab('preset')">预设古诗</button>
+      <button class="tab-button" onclick="switchTab('custom')">自定义内容</button>
+    </div>
+    
+    <!-- 难度选择 -->
+    <div class="difficulty-buttons">
+      <button class="difficulty-button easy" onclick="setDifficulty('easy')">简单</button>
+      <button class="difficulty-button normal active" onclick="setDifficulty('normal')">普通</button>
+      <button class="difficulty-button hard" onclick="setDifficulty('hard')">困难</button>
+    </div>
+    
+    <!-- 预设古诗选择 -->
+    <div id="preset-tab" class="tab-content active">
+      <div class="poem-selector" id="poem-selector"></div>
+    </div>
+    
+    <!-- 自定义内容 -->
+    <div id="custom-tab" class="tab-content">
+      <div class="custom-form">
+        <input type="text" id="custom-title" placeholder="标题">
+        <input type="text" id="custom-author" placeholder="作者">
+        <textarea id="custom-content" placeholder="内容" required></textarea>
+        <div id="custom-error" class="error-message" style="display: none;"></div>
+        <button onclick="createCustomPuzzle()">创建拼图</button>
+      </div>
+    </div>
+    
+    <!-- 当前诗句信息 -->
+    <div class="poem-info">
+      <h2 id="current-title"></h2>
+      <p id="current-author"></p>
+      <div id="hint-box" class="hint-box" style="display: none;"></div>
+    </div>
+    
+    <!-- 已选字符区域 -->
+    <div class="answer-area">
+      <h3>你的答案：</h3>
+      <div id="answer-container" class="answer-container"></div>
+      <div id="feedback" class="feedback" style="display: none;"></div>
+    </div>
+    
+    <!-- 可选字符区域 -->
+    <div class="characters-area">
+      <h3>可选字符：</h3>
+      <div id="characters-container" class="characters-container"></div>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div class="button-container">
+      <button class="action-button reshuffle-button" onclick="reshuffleCharacters()">重新打乱</button>
+      <button class="action-button hint-button" onclick="toggleHint()">显示提示</button>
+    </div>
+  </div>
+
+  <script>
+    // 预设古诗列表
+    const poems = [
+      {
+        title: "静夜思",
+        author: "李白",
+        content: "床前明月光，疑是地上霜。举头望明月，低头思故乡。"
+      },
+      {
+        title: "登鹳雀楼",
+        author: "王之涣",
+        content: "白日依山尽，黄河入海流。欲穷千里目，更上一层楼。"
+      },
+      {
+        title: "春晓",
+        author: "孟浩然",
+        content: "春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。"
+      },
+      {
+        title: "悯农",
+        author: "李绅",
+        content: "锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。"
+      },
+      {
+        title: "相思",
+        author: "王维",
+        content: "红豆生南国，春来发几枝。愿君多采撷，此物最相思。"
+      }
+    ];
+    
+    // 状态变量
+    let currentMode = 'preset';
+    let selectedPoemIndex = 0;
+    let currentTitle = '';
+    let currentAuthor = '';
+    let currentContent = '';
+    let shuffledCharacters = [];
+    let selectedCharacters = [];
+    let showingHint = false;
+    let currentDifficulty = 'normal';
+    
+    // 初始化
+    function initialize() {
+      renderPoemSelector();
+      selectPoem(0);
+    }
+    
+    // 渲染诗句选择器
+    function renderPoemSelector() {
+      const selector = document.getElementById('poem-selector');
+      selector.innerHTML = '';
+      
+      poems.forEach((poem, index) => {
+        const item = document.createElement('div');
+        item.className = `poem-item ${index === selectedPoemIndex ? 'selected' : ''}`;
+        item.textContent = `${poem.title} - ${poem.author}`;
+        item.onclick = () => selectPoem(index);
+        selector.appendChild(item);
+      });
+    }
+    
+    // 选择预设诗句
+    function selectPoem(index) {
+      selectedPoemIndex = index;
+      renderPoemSelector();
+      
+      const poem = poems[index];
+      currentTitle = poem.title;
+      currentAuthor = poem.author;
+      currentContent = poem.content;
+      
+      updatePoemInfo();
+      initializeGame();
+    }
+    
+    // 自定义内容创建拼图
+    function createCustomPuzzle() {
+      const titleInput = document.getElementById('custom-title');
+      const authorInput = document.getElementById('custom-author');
+      const contentInput = document.getElementById('custom-content');
+      const errorDiv = document.getElementById('custom-error');
+      
+      const content = contentInput.value.trim();
+      
+      if (!content) {
+        errorDiv.textContent = '请输入内容';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      currentTitle = titleInput.value.trim() || '自定义内容';
+      currentAuthor = authorInput.value.trim();
+      currentContent = content;
+      
+      errorDiv.style.display = 'none';
+      updatePoemInfo();
+      initializeGame();
+    }
+    
+    // 更新诗句信息显示
+    function updatePoemInfo() {
+      document.getElementById('current-title').textContent = currentTitle;
+      document.getElementById('current-author').textContent = currentAuthor ? `作者：${currentAuthor}` : '';
+      updateHint();
+    }
+    
+    // 初始化游戏
+    function initializeGame() {
+      if (!currentContent) return;
+      
+      const characters = currentContent.split('');
+      shuffledCharacters = shuffle([...characters]);
+      selectedCharacters = [];
+      
+      renderCharacters();
+      renderSelectedCharacters();
+      updateFeedback();
+    }
+    
+    // 打乱数组
+    function shuffle(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+    
+    // 渲染可选字符
+    function renderCharacters() {
+      const container = document.getElementById('characters-container');
+      container.innerHTML = '';
+      
+      shuffledCharacters.forEach((char, index) => {
+        const charElement = document.createElement('span');
+        charElement.className = 'character';
+        charElement.textContent = char;
+        charElement.onclick = () => selectCharacter(index);
+        container.appendChild(charElement);
+      });
+    }
+    
+    // 渲染已选字符
+    function renderSelectedCharacters() {
+      const container = document.getElementById('answer-container');
+      container.innerHTML = '';
+      
+      selectedCharacters.forEach((char, index) => {
+        const charElement = document.createElement('span');
+        charElement.className = 'character selected-character';
+        charElement.textContent = char;
+        charElement.onclick = () => deselectCharacter(index);
+        container.appendChild(charElement);
+      });
+    }
+    
+    // 选择字符
+    function selectCharacter(index) {
+      const char = shuffledCharacters[index];
+      shuffledCharacters.splice(index, 1);
+      selectedCharacters.push(char);
+      
+      renderCharacters();
+      renderSelectedCharacters();
+      updateFeedback();
+    }
+    
+    // 取消选择字符
+    function deselectCharacter(index) {
+      const char = selectedCharacters[index];
+      selectedCharacters.splice(index, 1);
+      shuffledCharacters.push(char);
+      
+      renderCharacters();
+      renderSelectedCharacters();
+      updateFeedback();
+    }
+    
+    // 更新反馈
+    function updateFeedback() {
+      const feedbackDiv = document.getElementById('feedback');
+      
+      if (selectedCharacters.length === 0) {
+        feedbackDiv.style.display = 'none';
+        return;
+      }
+      
+      const isCorrect = selectedCharacters.join('') === currentContent;
+      
+      feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedbackDiv.textContent = isCorrect ? '太棒了！拼图完成！' : '继续努力，还没有完全正确！';
+      feedbackDiv.style.display = 'block';
+    }
+    
+    // 重新打乱字符
+    function reshuffleCharacters() {
+      if (!currentContent) return;
+      
+      const allCharacters = [...selectedCharacters, ...shuffledCharacters];
+      shuffledCharacters = shuffle(allCharacters);
+      selectedCharacters = [];
+      
+      renderCharacters();
+      renderSelectedCharacters();
+      updateFeedback();
+    }
+    
+    // 切换标签页
+    function switchTab(tab) {
+      currentMode = tab;
+      
+      // 更新标签按钮状态
+      const buttons = document.querySelectorAll('.tab-button');
+      buttons.forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      const activeButton = document.querySelector(`.tab-button:nth-child(${tab === 'preset' ? 1 : 2})`);
+      activeButton.classList.add('active');
+      
+      // 更新标签内容显示
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      const activeContent = document.getElementById(`${tab}-tab`);
+      activeContent.classList.add('active');
+    }
+    
+    // 设置难度
+    function setDifficulty(difficulty) {
+      currentDifficulty = difficulty;
+      
+      // 更新难度按钮状态
+      const buttons = document.querySelectorAll('.difficulty-button');
+      buttons.forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      const activeButton = document.querySelector(`.difficulty-button.${difficulty}`);
+      activeButton.classList.add('active');
+      
+      updateHint();
+    }
+    
+    // 切换提示显示
+    function toggleHint() {
+      showingHint = !showingHint;
+      
+      const hintBox = document.getElementById('hint-box');
+      hintBox.style.display = showingHint ? 'block' : 'none';
+      
+      const hintButton = document.querySelector('.hint-button');
+      hintButton.textContent = showingHint ? '隐藏提示' : '显示提示';
+      
+      updateHint();
+    }
+    
+    // 更新提示内容
+    function updateHint() {
+      if (!showingHint || !currentContent) return;
+      
+      const hintBox = document.getElementById('hint-box');
+      let hintContent = '';
+      let hintTitle = '';
+      
+      if (currentDifficulty === 'easy') {
+        hintTitle = '完整提示：';
+        hintContent = currentContent;
+      } else if (currentDifficulty === 'normal') {
+        hintTitle = '部分提示：';
+        const chars = currentContent.split('');
+        hintContent = chars.map((char, index) => {
+          const isPunctuation = /[，。？！；：、]/.test(char);
+          const isFirstInSentence = index === 0 || (index > 0 && /[，。？！；：、]/.test(chars[index-1]));
+          return isPunctuation || isFirstInSentence ? char : '□';
+        }).join('');
+      } else { // hard
+        hintTitle = '最小提示（仅标点）：';
+        const chars = currentContent.split('');
+        hintContent = chars.map(char => {
+          return /[，。？！；：、]/.test(char) ? char : '□';
+        }).join('');
+      }
+      
+      hintBox.innerHTML = `<p>${hintTitle}</p><p>${hintContent}</p>`;
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', initialize);
+  </script>
+</body>
+</html>
